@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta name="viewport" content="width=device-width" />
+    <meta charset="utf-8">
+    <title>dmojis</title>
+    <meta name="description" content="send non-blurry custom emojis on discord without nitro">
+    <meta itemprop="name" content="dmojis">
+    <meta itemprop="description" content="send non-blurry custom emojis on discord without nitro">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="dmojis">
+    <meta name="twitter:description" content="send non-blurry custom emojis on discord without nitro">
+    <meta name="og:title" content="dmojis">
+    <meta name="og:description" content="send non-blurry custom emojis on discord without nitro">
+    <meta name="og:url" content="https://dmojis.github.io/">
+    <meta name="og:locale" content="en">
+    <meta name="og:type" content="website">
+    <style>
+      button.emoji {
+        padding: 0;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        display: inline-flex;
+        border-radius: 0.25rem;
+        overflow: hidden;
+      }
+      button.emoji img {
+        width: 2rem;
+        height: 2rem;
+        padding: 0.25rem;
+        background: #232528;
+      }
+      body {
+        background: #2f3136;
+        color: #dbdee1;
+        font-family: Roboto, system-ui, sans-serif;
+      }
+      button.emoji:hover img,
+      button.emoji:focus img {
+        background: #4f545c;
+        outline: none;
+      }
+      a {
+        color: #00a8fc;
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    Loading...
+    <script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"
+      integrity="sha256-xoB1Zy2Xbkd3OQVguqESGUhVvUQEsTZH2khVquH5Ngw="
+      crossorigin="anonymous"></script>
+    <script>
+      (async () => {
+        const README = marked.parse(await(await fetch("/README.md")).text())
+        document.body.innerHTML = README + "<hr>" + Object.entries(
+          await (await fetch("/emojis.json")).json()
+        )
+          .map(
+            ([name, url]) =>
+              `<button class="emoji" title="${name}" tabindex="0"><img src="${url}" alt="${name}" loading="lazy" /></button>`
+          )
+          .join("\n");
+        document.body.addEventListener("click", (event) => {
+          const button = event.target.closest("button.emoji")
+          if (button) {
+            const img = button.querySelector("img");
+            navigator.clipboard.writeText(
+              "||" +
+                "\u200b||||".repeat(199) +
+                "||||" +
+                location.origin +
+                "/" +
+                img.alt
+            );
+          }
+        });
+      })().catch(e=>{
+        console.error(e)
+        document.body.textContent="Failed to load emojis."
+      });
+    </script>
+  </body>
+</html>
